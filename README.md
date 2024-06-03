@@ -3,7 +3,7 @@ Execute SQL queries on a Google Analytics session dataset using BigQuery to fulf
 ## Dataset
 Table Schema: https://support.google.com/analytics/answer/3437719?hl=en
 ## Case Study Questions:
-### 1: Calculate total visit, pageview, transaction for Jan, Feb and March 2017 (order by month)
+### 1. Calculate total visit, pageview, transaction for Jan, Feb and March 2017 (order by month)
 Query #1
 ```c
 SELECT
@@ -23,7 +23,7 @@ ORDER BY month;
 |201702|62192|233373|733|
 |201703|69931|259522|993|
 ---
-### 2: Bounce rate per traffic source in July 2017 (Bounce_rate = num_bounce/total_visit) (order by total_visit DESC)
+### 2. Bounce rate per traffic source in July 2017 (Bounce_rate = num_bounce/total_visit) (order by total_visit DESC)
 Query #2
 ```c
 SELECT 
@@ -44,7 +44,7 @@ ORDER BY total_visits DESC;
 |analytics.google.com|1972|1064|53.9553752535497|
 |...|
 ***
-### 3: Revenue by traffic source by week, by month in June 2017
+### 3. Revenue by traffic source by week, by month in June 2017
 Query #3
 ```c
 WITH month AS
@@ -83,16 +83,16 @@ ORDER BY revenue DESC;
 |Month|201706|google|18757.17992|
 |...|
 ***
-### 4: Average number of pageviews by purchaser type (purchasers vs non-purchasers) in June, July 2017.
+### 4. Average number of pageviews by purchaser type (purchasers vs non-purchasers) in June, July 2017.
 Query #4
 ```c
 WITH purchaser_data AS(
   SELECT
       format_date("%Y%m",parse_date("%Y%m%d",date)) AS month,
       (sum(totals.pageviews)/count(distinct fullvisitorid)) AS avg_pageviews_purchase,
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`
-    ,UNNEST(hits) hits
-    ,UNNEST(product) product
+  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+    UNNEST(hits) hits,
+    UNNEST(product) product
   WHERE _table_suffix BETWEEN '0601' AND '0731'
   AND totals.transactions>=1
   AND product.productRevenue IS NOT NULL
@@ -103,9 +103,9 @@ non_purchaser_data AS(
   SELECT
       format_date("%Y%m",parse_date("%Y%m%d",date)) AS month,
       sum(totals.pageviews)/count(distinct fullvisitorid) AS avg_pageviews_non_purchase,
-  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`
-      ,UNNEST(hits) hits
-    ,UNNEST(product) product
+  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+    UNNEST(hits) hits,
+    UNNEST(product) product
   WHERE _table_suffix BETWEEN '0601' AND '0731'
   AND totals.transactions IS NULL
   AND product.productRevenue IS NULL
@@ -125,7 +125,7 @@ ORDER BY pd.month;
 |201706|94.02050113895217|316.86558846341671|
 |201707|124.23755186721992|334.05655979568053|
 ***
-### 5: Average number of transactions per user that made a purchase in July 2017
+### 5. Average number of transactions per user that made a purchase in July 2017
 Query #5
 ```c
 SELECT
@@ -142,15 +142,15 @@ GROUP BY month;
 |:----|------------------------------:|
 |201707|4.16390041493776|
 ***
-### 6: Average amount of money spent per session. Only include purchaser data in July 2017
+### 6. Average amount of money spent per session. Only include purchaser data in July 2017
 Query #6
 ```c
 SELECT
     FORMAT_DATE("%Y%m",parse_date("%Y%m%d",date)) AS month,
     ((SUM(product.productRevenue)/SUM(totals.visits))/POWER(10,6)) AS avg_revenue_by_user_per_visit
-FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`
-  ,UNNEST(hits) AS hits
-  ,UNNEST(product) AS product
+FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`,
+  UNNEST(hits) AS hits,
+  UNNEST(product) AS product
 WHERE product.productRevenue IS NOT NULL
   AND product.productRevenue IS NOT NULL
 GROUP BY month;
@@ -160,7 +160,7 @@ GROUP BY month;
 |:----|----------------------------:|
 |201707|43.856598348051243|
 ***
-### 7: Other products purchased by customers who purchased product "YouTube Men's Vintage Henley" in July 2017. Output should show product name and the quantity was ordered.
+### 7. Other products purchased by customers who purchased product "YouTube Men's Vintage Henley" in July 2017. Output should show product name and the quantity was ordered.
 Query #7
 ```c
 WITH id AS
@@ -193,9 +193,9 @@ ORDER BY quantity DESC;
 |Google Women's Short Sleeve Hero Tee Red Heather|4|
 |...|
 ***
-### 8: Calculate cohort map from product view to addtocart to purchase in Jan, Feb and March 2017. For example, 100% product view then 40% add_to_cart and 10% purchase.
+### 8. Calculate cohort map from product view to addtocart to purchase in Jan, Feb and March 2017. For example, 100% product view then 40% add_to_cart and 10% purchase.
 Add_to_cart_rate = number product  add to cart/number product view. Purchase_rate = number product purchase/number product view. The output should be calculated in product level.
-Note: hits.eCommerceAction.action_type = '2' is view product page; hits.eCommerceAction.action_type = '3' is add to cart; hits.eCommerceAction.action_type = '6' is purchase
+Note: hits.eCommerceAction.action_type = '2' is view product page; hits.eCommerceAction.action_type = '3' is add to cart; hits.eCommerceAction.action_type = '6' is purchase.
 Query #8
 ```c
 SELECT *,
