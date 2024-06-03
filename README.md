@@ -1,4 +1,4 @@
-# Google-Analytics-Session-data-querying-Ecommerce-Dataset
+# Google Analytics Session data querying: Ecommerce Dataset
 Execute SQL queries on a Google Analytics session dataset using BigQuery to fulfill analysis requests.
 ## Dataset
 Table Schema: https://support.google.com/analytics/answer/3437719?hl=en
