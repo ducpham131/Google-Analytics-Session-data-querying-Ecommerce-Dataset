@@ -53,9 +53,9 @@ WITH month AS
       FORMAT_DATE("%Y%m", PARSE_DATE("%Y%m%d", DATE)) AS time,
       trafficSource.source AS source,
       SUM(p.productRevenue)/POWER(10,6) AS revenue
-FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201706*`,
-  unnest(hits) hits, 
-  unnest(product) p
+  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201706*`,
+    UNNEST(hits) AS hits, 
+    UNNEST(product) AS p
   GROUP BY time, source),
 week AS
   (SELECT
@@ -63,9 +63,9 @@ week AS
     FORMAT_DATE("%Y%V", PARSE_DATE("%Y%m%d", DATE)) AS time,
     trafficSource.source AS source,
     SUM(p.productRevenue)/POWER(10,6) AS revenue
-FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201706*`,
-  unnest(hits) hits,
-  unnest(product) p
+  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201706*`,
+    UNNEST(hits) AS hits,
+    UNNEST(product) AS p
   GROUP BY time, source)
 SELECT *
 FROM month
@@ -160,5 +160,72 @@ GROUP BY month;
 |:----|----------------------------:|
 |201707|43.856598348051243|
 ***
-
-
+### 7: Other products purchased by customers who purchased product "YouTube Men's Vintage Henley" in July 2017. Output should show product name and the quantity was ordered.
+Query #7
+```c
+WITH id AS
+  (SELECT
+    DISTINCT fullVisitorId
+  FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`,
+    UNNEST (hits) AS hits,
+    UNNEST (hits.product) AS product
+  WHERE productRevenue IS NOT NULL
+    AND v2ProductName IN("YouTube Men's Vintage Henley"))
+SELECT
+  v2ProductName AS other_purchased_products,
+  SUM(productQuantity) AS quantity
+FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`,
+  UNNEST (hits) AS hits,
+  UNNEST (hits.product) AS product
+INNER JOIN id
+USING (fullVisitorId)
+WHERE productRevenue IS NOT NULL
+  AND v2ProductName NOT IN("YouTube Men's Vintage Henley")
+GROUP BY v2ProductName
+ORDER BY quantity DESC;
+```
+*Result*:
+|other_purchased_products|quantity|
+|:-----------------------|-------:|
+|Google Sunglasses|20|
+|Google Women's Vintage Hero Tee Black|7|
+|SPF-15 Slim & Slender Lip Balm|6|
+|Google Women's Short Sleeve Hero Tee Red Heather|4|
+|...|
+***
+### 8: Calculate cohort map from product view to addtocart to purchase in Jan, Feb and March 2017. For example, 100% product view then 40% add_to_cart and 10% purchase.
+Add_to_cart_rate = number product  add to cart/number product view. Purchase_rate = number product purchase/number product view. The output should be calculated in product level.
+Note: hits.eCommerceAction.action_type = '2' is view product page; hits.eCommerceAction.action_type = '3' is add to cart; hits.eCommerceAction.action_type = '6' is purchase
+Query #8
+```c
+SELECT *,
+  ROUND(100.0*num_addtocart/num_product_view,2) AS add_to_cart_rate,
+  ROUND(100.0*num_purchase/num_product_view,2) AS purchase_rate
+FROM
+(SELECT
+  FORMAT_DATE("%Y%m", PARSE_DATE("%Y%m%d", DATE)) AS month,
+  COUNT( CASE 
+    WHEN hits.eCommerceAction.action_type='2' THEN 1
+    ELSE NULL END) AS num_product_view,
+  COUNT( CASE 
+    WHEN hits.eCommerceAction.action_type='3' THEN 1
+    ELSE NULL END) AS num_addtocart,
+  COUNT( CASE 
+    WHEN hits.eCommerceAction.action_type='6'
+      AND productRevenue IS NOT NULL THEN 1
+    ELSE NULL END) AS num_purchase
+FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
+  UNNEST (hits) AS hits,
+  UNNEST (hits.product) AS product
+WHERE _table_suffix BETWEEN '0101' AND '0331'
+  AND eCommerceAction.action_type IN ('2','3','6')   
+GROUP BY month) AS number
+ORDER BY month;
+```
+*Result*:
+|month|num_product_view|num_addtocart|num_purchase|add_to_cart_rate|purchase_rate|
+|:----|:--------------:|:-----------:|:----------:|:--------------:|------------:|
+|201701|25787|7342|2143|28.47|8.31|
+|201702|21489|7360|2060|34.25|9.59|
+|201703|23549|8782|2977|37.29|12.64|
+***
