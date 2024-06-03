@@ -23,6 +23,7 @@ ORDER BY month;
 |201702|62192|233373|733|
 |201703|69931|259522|993|
 ---
+### 2: Bounce rate per traffic source in July 2017 (Bounce_rate = num_bounce/total_visit) (order by total_visit DESC)
 Query #2
 ```c
 SELECT 
@@ -34,7 +35,7 @@ FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201707*`
 GROUP BY trafficSource.source
 ORDER BY total_visits DESC;
 ```
-*Result*
+*Result*:
 |source|total_visits|total_no_of_bounces|bouce_rate|
 |:-----|:----------:|:-----------------:|---------:|
 |google|38400|19798|51.557291666666671|
@@ -42,5 +43,45 @@ ORDER BY total_visits DESC;
 |youtube.com|6351|4238|66.729648874193032|
 |analytics.google.com|1972|1064|53.9553752535497|
 |...|
-
 ***
+### 3: Revenue by traffic source by week, by month in June 2017
+Query #3
+```c
+WITH month AS
+  (SELECT
+      'Month' AS time_type,
+      FORMAT_DATE("%Y%m", PARSE_DATE("%Y%m%d", DATE)) AS time,
+      trafficSource.source AS source,
+      SUM(p.productRevenue)/1000000 AS revenue
+FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201706*`,
+  unnest(hits) hits, 
+  unnest(product) p
+  GROUP BY time, source),
+week AS
+  (SELECT
+    'Week' AS time_type,
+    FORMAT_DATE("%Y%V", PARSE_DATE("%Y%m%d", DATE)) AS time,
+    trafficSource.source AS source,
+    SUM(p.productRevenue)/1000000 AS revenue
+FROM `bigquery-public-data.google_analytics_sample.ga_sessions_201706*`,
+  unnest(hits) hits,
+  unnest(product) p
+  GROUP BY time, source)
+SELECT *
+FROM month
+UNION ALL
+SELECT *
+FROM week
+ORDER BY revenue DESC;
+```
+*Result*:
+|time_type|time|source|revenue|
+|:--------|:--:|:----:|------:|
+|Month|201706|(direct)|97333.619695|
+|Week|201724|(direct)|30908.909927|
+|Week|201725|(direct)|27295.319924|
+|Month|201706|google|18757.17992|
+|...|
+***
+
+
