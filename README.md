@@ -4,6 +4,7 @@ Execute SQL queries on a Google Analytics session dataset using BigQuery to fulf
 The dataset provides 12 months (August 2016 to August 2017) of obfuscated Google Analytics 360 data from the Google Merchandise Store , a real ecommerce store that sells Google-branded merchandise, in BigQuery.
 
 Table ID: bigquery-public-data.google_analytics_sample.ga_sessions_20170801
+
 Table Schema: https://support.google.com/analytics/answer/3437719?hl=en
 ## Case Study Questions:
 ### 1. Calculate total visit, pageview, transaction for Jan, Feb and March 2017 (order by month)
