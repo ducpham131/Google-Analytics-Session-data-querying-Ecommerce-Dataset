@@ -199,9 +199,13 @@ ORDER BY quantity DESC;
 ***
 ### 8. Calculate cohort map from product view to addtocart to purchase in Jan, Feb and March 2017. For example, 100% product view then 40% add_to_cart and 10% purchase.
 Add_to_cart_rate = number product  add to cart/number product view. 
+
 Purchase_rate = number product purchase/number product view. 
 
-Note: hits.eCommerceAction.action_type = '2' is view product page; hits.eCommerceAction.action_type = '3' is add to cart; hits.eCommerceAction.action_type = '6' is purchase.
+Note: 
+- hits.eCommerceAction.action_type = '2' is view product page;
+- hits.eCommerceAction.action_type = '3' is add to cart;
+- hits.eCommerceAction.action_type = '6' is purchase.
 Query #8
 ```c
 SELECT *,
