@@ -27,7 +27,9 @@ ORDER BY month;
 |201702|62192|233373|733|
 |201703|69931|259522|993|
 ---
-### 2. Bounce rate per traffic source in July 2017 (Bounce_rate = num_bounce/total_visit) (order by total_visit DESC)
+### 2. Bounce rate per traffic source in July 2017 (order by total_visit DESC)
+**Bounce_rate** = num_bounce/total_visit
+
 Query #2
 ```c
 SELECT 
@@ -203,9 +205,9 @@ ORDER BY quantity DESC;
 **Purchase_rate** = number product purchase/number product view. 
 
 Note: 
-- *hits.eCommerceAction.action_type* = 2 is view product page;
-- *hits.eCommerceAction.action_type* = 3 is add to cart;
-- *hits.eCommerceAction.action_type* = 6 is purchase.
+- *hits.eCommerceAction.action_type* = 2 is **view product page**;
+- *hits.eCommerceAction.action_type* = 3 is **add to cart**;
+- *hits.eCommerceAction.action_type* = 6 is **purchase**.
 
 Query #8
 ```c
