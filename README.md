@@ -94,8 +94,8 @@ Query #4
 ```c
 WITH purchaser_data AS(
   SELECT
-      format_date("%Y%m",parse_date("%Y%m%d",date)) AS month,
-      (sum(totals.pageviews)/count(distinct fullvisitorid)) AS avg_pageviews_purchase,
+      FORMAT_DATE("%Y%m",parse_date("%Y%m%d",date)) AS month,
+      (SUM(totals.pageviews)/COUNT(distinct fullvisitorid)) AS avg_pageviews_purchase,
   FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
     UNNEST(hits) hits,
     UNNEST(product) product
@@ -107,8 +107,8 @@ WITH purchaser_data AS(
 
 non_purchaser_data AS(
   SELECT
-      format_date("%Y%m",parse_date("%Y%m%d",date)) AS month,
-      sum(totals.pageviews)/count(distinct fullvisitorid) AS avg_pageviews_non_purchase,
+      FORMAT_DATE("%Y%m",PARSE_DATE("%Y%m%d",date)) AS month,
+      SUM(totals.pageviews)/COUNT(distinct fullvisitorid) AS avg_pageviews_non_purchase,
   FROM `bigquery-public-data.google_analytics_sample.ga_sessions_2017*`,
     UNNEST(hits) hits,
     UNNEST(product) product
